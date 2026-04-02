@@ -30,7 +30,7 @@ public class Todo extends Timestamped {
     @OneToMany(mappedBy = "todo", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "todo")
+    @OneToMany(mappedBy = "todo", cascade = CascadeType.PERSIST)
     private List<Manager> managers = new ArrayList<>();
 
     public Todo(String title, String contents, String weather, User user) {
@@ -40,4 +40,7 @@ public class Todo extends Timestamped {
         this.user = user;
         this.managers.add(new Manager(user, this));
     }
+
+
+    // Cascade: 부모 엔티티(Todo)가 저장(생성)될 때 자식 엔티티(Manager)도 함께 저장
 }
