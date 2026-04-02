@@ -10,6 +10,9 @@ import org.example.expert.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -21,6 +24,13 @@ public class UserService {
     public UserResponse getUser(long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new InvalidRequestException("User not found"));
         return new UserResponse(user.getId(), user.getEmail(), user.getNickname());
+    }
+
+    public List<UserResponse> getUser() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(user -> new UserResponse(user.getId(), user.getEmail(), user.getNickname()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -48,4 +58,6 @@ public class UserService {
             throw new InvalidRequestException("새 비밀번호는 8자 이상이어야 하고, 숫자와 대문자를 포함해야 합니다.");
         }
     }
+
+
 }
