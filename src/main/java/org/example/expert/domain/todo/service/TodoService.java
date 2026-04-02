@@ -17,6 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -48,10 +52,27 @@ public class TodoService {
         );
     }
 
-    public Page<TodoResponse> getTodos(int page, int size) {
+
+
+    // Q) 수정일을 구하는데 수정일만 하나만 있으면 되지 왜 시작날짜, 종료날짜가 필요할까?
+    // A) 내가말한데로 요청하면 수정일의 00:00:00 해당하는 할일만 가져오기때문에 해당날짜의 모든시간의 데이터를 가져오기 위해서 필요하다.
+    public Page<TodoResponse> getTodos(int page, int size, String weather, String startDate, String endDate) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
+        LocalDateTime startDateTime = startDate != null ? LocalDate.parse(startDate).atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? LocalDate.parse(endDate).atTime(LocalTime.MAX) : null;
+
+        Page<Todo> todos;
+
+        if (weather != null && startDateTime != null && endDateTime != null) {
+            todos = todoRepository.findByWeatherAndModifiedAtBetween(weather, startDateTime, endDateTime, pageable);
+        } else if (weather != null) {
+            todos = todoRepository.findByWeather(weather, pageable);
+        } else if (startDateTime != null && endDateTime != null) {
+            todos = todoRepository.findByModifiedAtBetween(startDateTime, endDateTime, pageable);
+        } else {
+            todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
+        }
 
         return todos.map(todo -> new TodoResponse(
                 todo.getId(),
