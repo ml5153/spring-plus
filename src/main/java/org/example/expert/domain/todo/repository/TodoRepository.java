@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface TodoRepository extends JpaRepository<Todo, Long> {
+public interface TodoRepository extends JpaRepository<Todo, Long> , TodoRepositoryCustom{
 
     // Q) @Query 즉 JPQL을 언제써야할까?
     // A) @Query가 없어도 동작은 한다만 JPA에서 쿼리를 자기맘대로 실행할 수 있어 예상치 못한 N+1오류가 발생할 수 있다.
@@ -21,10 +21,10 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     @Query("SELECT t FROM Todo t LEFT JOIN FETCH t.user u ORDER BY t.modifiedAt DESC")
     Page<Todo> findAllByOrderByModifiedAtDesc(Pageable pageable);
 
-    @Query("SELECT t FROM Todo t " +
-            "LEFT JOIN t.user " +
-            "WHERE t.id = :todoId")
-    Optional<Todo> findByIdWithUser(@Param("todoId") Long todoId);
+//    @Query("SELECT t FROM Todo t " +
+//            "LEFT JOIN t.user " +
+//            "WHERE t.id = :todoId")
+//    Optional<Todo> findByIdWithUser(@Param("todoId") Long todoId);
 
     @Query("SELECT t FROM Todo t WHERE t.weather = :weather AND t.modifiedAt BETWEEN :startDateTime AND :endDateTime ORDER BY t.modifiedAt DESC ")
     Page<Todo> findByWeatherAndModifiedAtBetween(String weather, LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
