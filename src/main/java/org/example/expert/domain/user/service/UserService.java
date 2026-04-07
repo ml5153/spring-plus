@@ -59,5 +59,9 @@ public class UserService {
         }
     }
 
-
+    public UserResponse getUserByNickname(String nickname) {
+        User user = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new InvalidRequestException("해당 닉네임의 유저가 없습니다."));
+        return new UserResponse(user.getId(), user.getEmail(), user.getNickname());
+    }
 }
